@@ -28,18 +28,27 @@ def find_player(fide_id):
 
     for event, elem in ET.iterparse(xml_file, events=("end",)):
 
-        if elem.tag.lower().endswith("player"):
-            player_id = elem.attrib.get("fideid") or elem.attrib.get("id")
+        if elem.tag.lower() == "player":
+
+            def get_value(tag):
+                child = elem.find(tag)
+
+                if child is not None and child.text:
+                    return child.text.strip()
+
+                return None
+
+            player_id = get_value("fideid")
 
             if player_id == fide_id:
                 return {
-                    "fide_id": fide_id,
-                    "name": elem.attrib.get("name"),
-                    "title": elem.attrib.get("title"),
-                    "federation": elem.attrib.get("country"),
-                    "standard": elem.attrib.get("standard"),
-                    "rapid": elem.attrib.get("rapid"),
-                    "blitz": elem.attrib.get("blitz")
+                    "fide_id": player_id,
+                    "name": get_value("name"),
+                    "title": get_value("title"),
+                    "federation": get_value("country"),
+                    "standard": get_value("rating"),
+                    "rapid": get_value("rapid_rating"),
+                    "blitz": get_value("blitz_rating")
                 }
 
             elem.clear()
