@@ -15,6 +15,3 @@ def player(fide_id):
         "fide_id": fide_id,
         "message": "Player lookup will be connected next"
     })
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
