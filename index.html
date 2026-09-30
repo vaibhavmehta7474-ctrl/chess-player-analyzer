@@ -1,126 +1,264 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chess Player Analyzer</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #111827;
-            color: white;
-            margin: 0;
-            padding: 20px;
-        }
+<title>Chess Player Analyzer</title>
 
-        .container {
-            max-width: 700px;
-            margin: auto;
-        }
+<style>
+* {
+    box-sizing: border-box;
+}
 
-        h1 {
-            text-align: center;
-        }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0b0f19;
+    color: #ffffff;
+}
 
-        .search {
-            display: flex;
-            gap: 10px;
-            margin: 30px 0;
-        }
+.container {
+    max-width: 900px;
+    margin: auto;
+    padding: 25px 18px;
+}
 
-        input {
-            flex: 1;
-            padding: 14px;
-            border-radius: 8px;
-            border: none;
-            font-size: 16px;
-        }
+header {
+    text-align: center;
+    padding: 35px 10px;
+}
 
-        button {
-            padding: 14px 20px;
-            border: none;
-            border-radius: 8px;
-            background: #2563eb;
-            color: white;
-            font-weight: bold;
-        }
+.logo {
+    font-size: 42px;
+}
 
-        .card {
-            background: #1f2937;
-            padding: 20px;
-            margin-top: 15px;
-            border-radius: 12px;
-        }
+h1 {
+    margin: 10px 0;
+    font-size: 32px;
+}
 
-        .hidden {
-            display: none;
-        }
-    </style>
+.subtitle {
+    color: #9ca3af;
+}
+
+.search-box {
+    display: flex;
+    gap: 10px;
+    margin: 25px auto;
+    max-width: 650px;
+}
+
+input {
+    flex: 1;
+    padding: 16px;
+    border-radius: 10px;
+    border: 1px solid #374151;
+    background: #111827;
+    color: white;
+    font-size: 16px;
+}
+
+button {
+    padding: 16px 22px;
+    border: 0;
+    border-radius: 10px;
+    background: #2563eb;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+.card {
+    background: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 14px;
+    padding: 22px;
+    margin-top: 18px;
+}
+
+.card h2 {
+    margin-top: 0;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.stat {
+    background: #0b1220;
+    padding: 18px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.muted {
+    color: #9ca3af;
+}
+
+.hidden {
+    display: none;
+}
+
+footer {
+    text-align: center;
+    color: #6b7280;
+    margin-top: 40px;
+    font-size: 13px;
+}
+
+@media (max-width: 600px) {
+    .search-box {
+        flex-direction: column;
+    }
+
+    .stats {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
 </head>
 
 <body>
 
 <div class="container">
 
-    <h1>♟ Chess Player Analyzer</h1>
-
-    <p style="text-align:center;">
-        Enter a FIDE ID to analyze a player
+<header>
+    <div class="logo">♟</div>
+    <h1>Chess Player Analyzer</h1>
+    <p class="subtitle">
+        Analyze a player's games, openings and performance
     </p>
+</header>
 
-    <div class="search">
-        <input id="fideId" placeholder="Enter FIDE ID">
-        <button onclick="searchPlayer()">Analyze</button>
+<div class="search-box">
+    <input
+        id="fideId"
+        type="text"
+        placeholder="Enter FIDE ID"
+    >
+
+    <button onclick="analyzePlayer()">
+        Analyze Player
+    </button>
+</div>
+
+<div id="result" class="hidden">
+
+    <div class="card">
+        <h2 id="playerName">Player</h2>
+
+        <p class="muted">
+            FIDE ID: <span id="playerId"></span>
+        </p>
+
+        <p>
+            Rating: <strong id="rating">Coming soon</strong>
+        </p>
     </div>
 
-    <div id="result" class="hidden">
+    <div class="card">
+        <h2>Game Statistics</h2>
 
-        <div class="card">
-            <h2 id="playerName">Player</h2>
-            <p>FIDE ID: <span id="playerId"></span></p>
-            <p>Rating: <span id="rating">Coming soon</span></p>
+        <div class="stats">
+
+            <div class="stat">
+                <div class="stat-number">—</div>
+                <div class="muted">Games</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-number">—</div>
+                <div class="muted">Wins</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-number">—</div>
+                <div class="muted">Losses</div>
+            </div>
+
         </div>
+    </div>
 
-        <div class="card">
-            <h2>📊 Game Statistics</h2>
-            <p>Games analyzed: Coming soon</p>
-            <p>Wins: Coming soon</p>
-            <p>Losses: Coming soon</p>
-            <p>Draws: Coming soon</p>
-        </div>
+    <div class="card">
+        <h2>♟ Opening Performance</h2>
 
-        <div class="card">
-            <h2>♟ Opening Performance</h2>
-            <p>Opening statistics will appear here.</p>
-        </div>
+        <p class="muted">
+            Opening statistics will appear here after game data is connected.
+        </p>
+    </div>
 
-        <div class="card">
-            <h2>⚠ Weakness Analysis</h2>
-            <p>Weakness detection will appear here.</p>
-        </div>
+    <div class="card">
+        <h2>⚠ Weakness Analysis</h2>
 
+        <p class="muted">
+            The analyzer will identify recurring patterns such as
+            opening performance, middlegame mistakes and endgame results.
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>📊 Data Sources</h2>
+
+        <p class="muted">
+            FIDE · Chess-Results · Lichess · Chess.com · FIDE Online Arena
+        </p>
+
+        <p class="muted">
+            Data availability will depend on each service's permitted
+            access methods.
+        </p>
     </div>
 
 </div>
 
-<script>
-function searchPlayer() {
+<footer>
+    Chess Player Analyzer — Version 1
+</footer>
 
-    const fideId = document.getElementById("fideId").value;
+</div>
+
+<script>
+
+function analyzePlayer() {
+
+    const fideId =
+        document.getElementById("fideId").value.trim();
 
     if (fideId === "") {
         alert("Please enter a FIDE ID.");
         return;
     }
 
-    document.getElementById("result").classList.remove("hidden");
+    document
+        .getElementById("result")
+        .classList.remove("hidden");
 
-    document.getElementById("playerId").textContent = fideId;
+    document
+        .getElementById("playerId")
+        .textContent = fideId;
 
-    document.getElementById("playerName").textContent =
-        "Player " + fideId;
+    document
+        .getElementById("playerName")
+        .textContent = "Player " + fideId;
+
+    window.scrollTo({
+        top: document.getElementById("result").offsetTop - 20,
+        behavior: "smooth"
+    });
 }
+
 </script>
 
 </body>
