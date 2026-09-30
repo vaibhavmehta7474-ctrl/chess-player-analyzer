@@ -1,13 +1,50 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
-import requests
-from bs4 import BeautifulSoup
-import re
+import xml.etree.ElementTree as ET
+import os
 
 app = Flask(__name__)
 CORS(app)
 
-FIDE_PROFILE_URL = "https://ratings.fide.com/profile/{}"
+FIDE_DATA_DIR = "fide_data"
+
+
+def find_fide_xml():
+    if not os.path.exists(FIDE_DATA_DIR):
+        return None
+
+    for filename in os.listdir(FIDE_DATA_DIR):
+        if filename.lower().endswith(".xml"):
+            return os.path.join(FIDE_DATA_DIR, filename)
+
+    return None
+
+
+def find_player(fide_id):
+    xml_file = find_fide_xml()
+
+    if not xml_file:
+        return None
+
+    for event, elem in ET.iterparse(xml_file, events=("end",)):
+
+        if elem.tag.lower().endswith("player"):
+            player_id = elem.attrib.get("fideid") or elem.attrib.get("id")
+
+            if player_id == fide_id:
+                return {
+                    "fide_id": fide_id,
+                    "name": elem.attrib.get("name"),
+                    "title": elem.attrib.get("title"),
+                    "federation": elem.attrib.get("country"),
+                    "standard": elem.attrib.get("standard"),
+                    "rapid": elem.attrib.get("rapid"),
+                    "blitz": elem.attrib.get("blitz")
+                }
+
+            elem.clear()
+
+    return None
 
 
 @app.route("/")
@@ -26,132 +63,11 @@ def player(fide_id):
             "error": "FIDE ID must contain numbers only"
         }), 400
 
-    url = FIDE_PROFILE_URL.format(fide_id)
+    result = find_player(fide_id)
 
-    try:
-        response = requests.get(
-            url,
-            timeout=15,
-            headers={
-                "User-Agent": "ChessPlayerAnalyzer/1.0"
-            }
-        )
-
-        if response.status_code == 404:
-            return jsonify({
-                "error": "FIDE player not found"
-            }), 404
-
-        response.raise_for_status()
-
-        soup = BeautifulSoup(response.text, "html.parser")
-
-        text = soup.get_text(" ", strip=True)
-
-        # Player name
-        name = None
-
-        title_tag = soup.find("title")
-
-        if title_tag:
-            title_text = title_tag.get_text(" ", strip=True)
-            name = re.sub(
-                r"\s+FIDE Profile.*$",
-                "",
-                title_text,
-                flags=re.IGNORECASE
-            ).strip()
-
-        # FIDE ID
-        fide_id_found = fide_id
-
-        # Federation
-        federation = None
-
-        federation_label = soup.find(
-            string=re.compile(r"Federation", re.IGNORECASE)
-        )
-
-        if federation_label:
-            parent_text = federation_label.parent.get_text(
-                " ",
-                strip=True
-            )
-
-            match = re.search(
-                r"Federation\s+([A-Z]{3})",
-                parent_text
-            )
-
-            if match:
-                federation = match.group(1)
-
-        # Title
-        fide_title = None
-
-        title_match = re.search(
-            r"FIDE title\s+([A-Za-z ]+?)(?=\s+World Rank|\s+Titles|\s+Info)",
-            text,
-            re.IGNORECASE
-        )
-
-        if title_match:
-            fide_title = title_match.group(1).strip()
-
-        # Ratings
-        standard = None
-        rapid = None
-        blitz = None
-
-        rating_patterns = {
-            "standard": r"(\d{3,4})\s+STANDARD",
-            "rapid": r"(\d{3,4})\s+RAPID",
-            "blitz": r"(\d{3,4})\s+BLITZ"
-        }
-
-        for rating_type, pattern in rating_patterns.items():
-
-            match = re.search(
-                pattern,
-                text,
-                re.IGNORECASE
-            )
-
-            if match:
-                rating = int(match.group(1))
-
-                if rating_type == "standard":
-                    standard = rating
-
-                elif rating_type == "rapid":
-                    rapid = rating
-
-                elif rating_type == "blitz":
-                    blitz = rating
-
+    if result is None:
         return jsonify({
-            "fide_id": fide_id_found,
-            "name": name,
-            "federation": federation,
-            "title": fide_title,
-            "ratings": {
-                "standard": standard,
-                "rapid": rapid,
-                "blitz": blitz
-            },
-            "source": url
-        })
+            "error": "Player not found"
+        }), 404
 
-    except requests.RequestException as error:
-
-        return jsonify({
-            "error": "Could not reach FIDE ratings server",
-            "details": str(error)
-        }), 502
-
-    except Exception as error:
-
-        return jsonify({
-            "error": "Could not read FIDE player profile",
-            "details": str(error)
-        }), 500
+    return jsonify(result)
