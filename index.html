@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Player Analyzer</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #111827;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .search {
+            display: flex;
+            gap: 10px;
+            margin: 30px 0;
+        }
+
+        input {
+            flex: 1;
+            padding: 14px;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            font-weight: bold;
+        }
+
+        .card {
+            background: #1f2937;
+            padding: 20px;
+            margin-top: 15px;
+            border-radius: 12px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>♟ Chess Player Analyzer</h1>
+
+    <p style="text-align:center;">
+        Enter a FIDE ID to analyze a player
+    </p>
+
+    <div class="search">
+        <input id="fideId" placeholder="Enter FIDE ID">
+        <button onclick="searchPlayer()">Analyze</button>
+    </div>
+
+    <div id="result" class="hidden">
+
+        <div class="card">
+            <h2 id="playerName">Player</h2>
+            <p>FIDE ID: <span id="playerId"></span></p>
+            <p>Rating: <span id="rating">Coming soon</span></p>
+        </div>
+
+        <div class="card">
+            <h2>📊 Game Statistics</h2>
+            <p>Games analyzed: Coming soon</p>
+            <p>Wins: Coming soon</p>
+            <p>Losses: Coming soon</p>
+            <p>Draws: Coming soon</p>
+        </div>
+
+        <div class="card">
+            <h2>♟ Opening Performance</h2>
+            <p>Opening statistics will appear here.</p>
+        </div>
+
+        <div class="card">
+            <h2>⚠ Weakness Analysis</h2>
+            <p>Weakness detection will appear here.</p>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+function searchPlayer() {
+
+    const fideId = document.getElementById("fideId").value;
+
+    if (fideId === "") {
+        alert("Please enter a FIDE ID.");
+        return;
+    }
+
+    document.getElementById("result").classList.remove("hidden");
+
+    document.getElementById("playerId").textContent = fideId;
+
+    document.getElementById("playerName").textContent =
+        "Player " + fideId;
+}
+</script>
+
+</body>
+</html>
